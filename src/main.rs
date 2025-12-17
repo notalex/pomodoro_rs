@@ -410,8 +410,8 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
         // Print current status
         print!("\r{}: {} | {} | {}  ",
                timer_type.bright_yellow(),
-               format!("{:02}:{:02}", mins, secs).bold().yellow(),
                end_time.format("%H:%M:%S").to_string().bright_cyan(),
+               format!("{:02}:{:02}", mins, secs).bold().yellow(),
                description.green());
         io::stdout().flush().unwrap();
 
