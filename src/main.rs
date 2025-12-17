@@ -170,9 +170,7 @@ fn main() {
     let rust_emojis = emojis.rust.clone();
 
     ctrlc::set_handler(move || {
-        println!("\n\n{} Pomodoro timer stopped. Take care! {}\n",
-                 random_from(&rust_emojis),
-                 random_from(&success_emojis));
+        println!();
         std::process::exit(0);
     }).expect("Error setting Ctrl+C handler");
 
@@ -265,10 +263,10 @@ fn run_work_session(minutes: u64, task_desc: &str, emojis: &Emojis, motivations:
     let rust_emoji = random_from(&emojis.rust);
 
     // println!("\n{} {} {}", work_emoji, random_from(&motivations.start_work).bright_green(), rust_emoji);
-    println!("{} Starting {} minute Pomodoro for: {}\n",
-             work_emoji,
-             minutes.to_string().bright_yellow(),
-             task_desc.bright_cyan());
+    // println!("{} Starting {} minute Pomodoro for: {}\n",
+             // work_emoji,
+             // minutes.to_string().bright_yellow(),
+             // task_desc.bright_cyan());
 
     run_fancy_timer(minutes, "Pomodoro", task_desc, &emojis.work, &motivations.during_work);
 
@@ -292,11 +290,11 @@ fn run_break(minutes: u64, is_long: bool, emojis: &Emojis, motivations: &Motivat
     let break_emoji = random_from(break_emojis);
     let rust_emoji = random_from(&emojis.rust);
 
-    println!("\n{} {} {}", break_emoji, random_from(&motivations.start_break).bright_blue(), rust_emoji);
-    println!("{} Starting {} minute {} break\n",
-             break_emoji,
-             minutes.to_string().bright_yellow(),
-             break_type.bright_magenta());
+    // println!("\n{} {} {}", break_emoji, random_from(&motivations.start_break).bright_blue(), rust_emoji);
+    // println!("{} Starting {} minute {} break\n",
+             // break_emoji,
+             // minutes.to_string().bright_yellow(),
+             // break_type.bright_magenta());
 
     run_fancy_timer(minutes, &format!("{} Break", if is_long { "Long" } else { "Short" }),
                   "Time to relax", break_emojis, &motivations.start_break);
@@ -360,16 +358,7 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
     let total_seconds = minutes * 60;
     let start_time = Local::now();
 
-    // Create a progress bar
-    let pb = ProgressBar::new(total_seconds);
-    pb.set_style(ProgressStyle::default_bar()
-        .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})")
-        .expect("Failed to set progress bar template")
-        .progress_chars("#>-"));
-
     for remaining in (0..total_seconds).rev() {
-        // Update progress bar
-        pb.set_position(total_seconds - remaining);
 
         // Calculate remaining minutes and seconds
         let mins = remaining / 60;
@@ -388,20 +377,17 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
         let end_time = Local::now() + chrono::Duration::seconds(remaining as i64);
 
         // Print current status
-        print!("\r{} {}: {:02}:{:02} remaining | {:02}:{:02} elapsed | End: {} | {}  ",
-               random_from(emoji_set),
-               timer_type.bright_yellow(), 
-               mins, secs, 
-               elapsed_secs / 60, elapsed_secs % 60,
+        print!("\r{}: {} | {} | {}  ",
+               timer_type.bright_yellow(),
+               format!("{:02}:{:02}", mins, secs).bold().yellow(),
                end_time.format("%H:%M:%S").to_string().bright_cyan(),
-               description.bright_green());
+               description.green());
         io::stdout().flush().unwrap();
 
         // Wait one second
         thread::sleep(Duration::from_secs(1));
     }
 
-    pb.finish_with_message(format!("{} completed!", timer_type));
     println!("\n{} {} completed! {} {}",
              random_from(emoji_set),
              timer_type.bright_yellow(),
