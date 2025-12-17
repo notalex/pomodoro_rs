@@ -123,11 +123,11 @@ fn init_motivations() -> Motivations {
             "Your future self will thank you for focusing now.",
         ],
         during_work: vec![
-            "Stay focused, you're doing great!",
-            "One line of code at a time...",
-            "The 🦀 is coding alongside you!",
-            "Keep going, you're in the flow!",
-            "Small steps lead to big accomplishments.",
+            "....",
+            "....",
+            "....",
+            "....",
+            "....",
         ],
         end_work: vec![
             "Great job! Take a well-deserved break.",
@@ -177,8 +177,8 @@ fn main() {
     }).expect("Error setting Ctrl+C handler");
 
     // Display welcome message on first run
-    print_welcome_message(&emojis);
-    
+    // print_welcome_message(&emojis);
+
     // If no command is provided, run the default loop
     match &cli.command {
         Some(command) => match command {
@@ -263,11 +263,11 @@ fn print_welcome_message(_emojis: &Emojis) {
 fn run_work_session(minutes: u64, task_desc: &str, emojis: &Emojis, motivations: &Motivations) {
     let work_emoji = random_from(&emojis.work);
     let rust_emoji = random_from(&emojis.rust);
-    
-    println!("\n{} {} {}", work_emoji, random_from(&motivations.start_work).bright_green(), rust_emoji);
-    println!("{} Starting {} minute Pomodoro for: {}\n", 
-             work_emoji, 
-             minutes.to_string().bright_yellow(), 
+
+    // println!("\n{} {} {}", work_emoji, random_from(&motivations.start_work).bright_green(), rust_emoji);
+    println!("{} Starting {} minute Pomodoro for: {}\n",
+             work_emoji,
+             minutes.to_string().bright_yellow(),
              task_desc.bright_cyan());
 
     run_fancy_timer(minutes, "Pomodoro", task_desc, &emojis.work, &motivations.during_work);
