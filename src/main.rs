@@ -301,10 +301,10 @@ fn run_work_session(minutes: u64, task_desc: &str, emojis: &Emojis, motivations:
     // Log the completed task
     log_completed_task(task_desc);
 
-    println!("\n{} {} {}",
-             random_from(&emojis.success),
-             random_from(&motivations.end_work).bright_green(),
-             rust_emoji);
+    // println!("\n{} {} {}",
+             // random_from(&emojis.success),
+             // random_from(&motivations.end_work).bright_green(),
+             // rust_emoji);
 
     // This will play the alert sound
     notify("Pomodoro completed!",
@@ -330,10 +330,10 @@ fn run_break(minutes: u64, is_long: bool, emojis: &Emojis, motivations: &Motivat
     run_fancy_timer(minutes, &format!("{} Break", if is_long { "Long" } else { "Short" }),
                   "Time to relax", break_emojis, &motivations.start_break);
 
-    println!("\n{} {} {}",
-             random_from(&emojis.success),
-             random_from(&motivations.end_break).bright_green(),
-             rust_emoji);
+    // println!("\n{} {} {}",
+             // random_from(&emojis.success),
+             // random_from(&motivations.end_break).bright_green(),
+             // rust_emoji);
 
     notify("Break ended!",
            &format!("{} Your {} minute break has ended",
@@ -419,11 +419,12 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
         thread::sleep(Duration::from_secs(1));
     }
 
-    println!("\n{} {} completed! {} {}",
-             random_from(emoji_set),
-             timer_type.bright_yellow(),
-             description.bright_green(),
-             random_from(&["Great job!", "Well done!", "Excellent!", "Fantastic!", "Amazing!"]));
+    println!("");
+    // println!("\n{} {} completed! {} {}",
+             // random_from(emoji_set),
+             // timer_type.bright_yellow(),
+             // description.bright_green(),
+             // random_from(&["Great job!", "Well done!", "Excellent!", "Fantastic!", "Amazing!"]));
 }
 
 /// Display a desktop notification and play alert sound
