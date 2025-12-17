@@ -36,9 +36,9 @@ struct Motivations {
 /// CLI application for a friendly Pomodoro timer
 #[derive(Parser)]
 #[command(
-    author, 
-    version, 
-    about = "🍅 A friendly Pomodoro timer with Rust 🦀", 
+    author,
+    version,
+    about = "🍅 A friendly Pomodoro timer with Rust 🦀",
     long_about = None
 )]
 struct Cli {
@@ -54,49 +54,49 @@ enum Commands {
         /// Custom duration in minutes
         #[arg(short, long, default_value_t = 25)]
         duration: u64,
-        
+
         /// Task description
         #[arg(short, long)]
         task: Option<String>,
     },
-    
+
     /// Start a break (5 minutes by default)
     Break {
         /// Break duration in minutes
         #[arg(short, long, default_value_t = 5)]
         duration: u64,
-        
+
         /// Whether this is a long break
         #[arg(short, long)]
         long: bool,
     },
-    
+
     /// Schedule a sequence of pomodoros
     Schedule {
         /// Number of pomodoro sessions
         #[arg(short, long, default_value_t = 4)]
         sessions: u32,
-        
+
         /// Work duration in minutes
         #[arg(short, long, default_value_t = 25)]
         work: u64,
-        
+
         /// Short break duration in minutes
         #[arg(short = 'b', long, default_value_t = 5)]
         short_break: u64,
-        
+
         /// Long break duration in minutes
         #[arg(short, long, default_value_t = 15)]
         long_break: u64,
-        
+
         /// Task description
         #[arg(short, long)]
         task: Option<String>,
     },
-    
+
     /// Install the binary to your PATH
     Install,
-    
+
     /// Get a random productivity tip
     Tip,
 }
@@ -160,18 +160,18 @@ fn random_from<'a>(vec: &'a [&'static str]) -> &'a str {
 
 fn main() {
     let cli = Cli::parse();
-    
+
     // Initialize emojis and motivational messages
     let emojis = init_emojis();
     let motivations = init_motivations();
-    
+
     // Set up Ctrl+C handler for clean termination
     let success_emojis = emojis.success.clone();
     let rust_emojis = emojis.rust.clone();
-    
+
     ctrlc::set_handler(move || {
-        println!("\n\n{} Pomodoro timer stopped. Take care! {}\n", 
-                 random_from(&rust_emojis), 
+        println!("\n\n{} Pomodoro timer stopped. Take care! {}\n",
+                 random_from(&rust_emojis),
                  random_from(&success_emojis));
         std::process::exit(0);
     }).expect("Error setting Ctrl+C handler");
@@ -202,12 +202,12 @@ fn main() {
         },
         None => {
             // Default loop - repeat 25/5 pattern until user exits
-            println!("{} Starting default Pomodoro cycle (25min work, 5min break) {}\n", 
-                     random_from(&emojis.work), 
+            println!("{} Starting default Pomodoro cycle (25min work, 5min break) {}\n",
+                     random_from(&emojis.work),
                      random_from(&emojis.rust));
-            
+
             println!("{}", "Press Ctrl+C at any time to exit.".yellow());
-                
+
             loop {
                 // Ask for task description
                 let task = dialoguer::Input::<String>::new()
@@ -215,22 +215,22 @@ fn main() {
                     .allow_empty(true)
                     .interact_text()
                     .unwrap_or_else(|_| "".to_string());
-                
+
                 let task_desc = if task.is_empty() { "Focused work".to_string() } else { task };
-                
+
                 // Run work session
                 run_work_session(25, &task_desc, &emojis, &motivations);
-                
+
                 // Run break
                 run_break(5, false, &emojis, &motivations);
-                
+
                 // Ask if user wants to continue
                 if !Confirm::with_theme(&ColorfulTheme::default())
                     .with_prompt("Start another Pomodoro cycle?")
                     .default(true)
                     .interact()
                     .unwrap_or(false) {
-                    
+
                     println!("\n{} Thanks for using Pomodoro_rs! Have a productive day! {}\n",
                              random_from(&emojis.rust),
                              random_from(&emojis.success));
@@ -269,19 +269,19 @@ fn run_work_session(minutes: u64, task_desc: &str, emojis: &Emojis, motivations:
              work_emoji, 
              minutes.to_string().bright_yellow(), 
              task_desc.bright_cyan());
-    
+
     run_fancy_timer(minutes, "Pomodoro", task_desc, &emojis.work, &motivations.during_work);
-    
-    println!("\n{} {} {}", 
-             random_from(&emojis.success), 
+
+    println!("\n{} {} {}",
+             random_from(&emojis.success),
              random_from(&motivations.end_work).bright_green(),
              rust_emoji);
-             
+
     // This will play the alert sound
-    notify("Pomodoro completed!", 
-           &format!("{} You completed a {} minute pomodoro for: {}", 
-                   random_from(&emojis.success), 
-                   minutes, 
+    notify("Pomodoro completed!",
+           &format!("{} You completed a {} minute pomodoro for: {}",
+                   random_from(&emojis.success),
+                   minutes,
                    task_desc));
 }
 
@@ -291,61 +291,61 @@ fn run_break(minutes: u64, is_long: bool, emojis: &Emojis, motivations: &Motivat
     let break_emojis = if is_long { &emojis.break_long } else { &emojis.break_short };
     let break_emoji = random_from(break_emojis);
     let rust_emoji = random_from(&emojis.rust);
-    
+
     println!("\n{} {} {}", break_emoji, random_from(&motivations.start_break).bright_blue(), rust_emoji);
-    println!("{} Starting {} minute {} break\n", 
-             break_emoji, 
-             minutes.to_string().bright_yellow(), 
+    println!("{} Starting {} minute {} break\n",
+             break_emoji,
+             minutes.to_string().bright_yellow(),
              break_type.bright_magenta());
-    
-    run_fancy_timer(minutes, &format!("{} Break", if is_long { "Long" } else { "Short" }), 
+
+    run_fancy_timer(minutes, &format!("{} Break", if is_long { "Long" } else { "Short" }),
                   "Time to relax", break_emojis, &motivations.start_break);
-    
-    println!("\n{} {} {}", 
-             random_from(&emojis.success), 
+
+    println!("\n{} {} {}",
+             random_from(&emojis.success),
              random_from(&motivations.end_break).bright_green(),
              rust_emoji);
-             
-    notify("Break ended!", 
-           &format!("{} Your {} minute break has ended", 
-                   random_from(&emojis.success), 
+
+    notify("Break ended!",
+           &format!("{} Your {} minute break has ended",
+                   random_from(&emojis.success),
                    minutes));
 }
 
 /// Run a schedule of pomodoro sessions with breaks
-fn run_schedule(sessions: u32, work: u64, short_break: u64, long_break: u64, 
+fn run_schedule(sessions: u32, work: u64, short_break: u64, long_break: u64,
                task_desc: &str, emojis: &Emojis, motivations: &Motivations) {
     let rust_emoji = random_from(&emojis.rust);
-    
+
     println!("{} Scheduling {} work sessions ({} min) with short breaks ({} min) and a long break ({} min) {}",
              random_from(&emojis.work),
-             sessions.to_string().bright_yellow(), 
+             sessions.to_string().bright_yellow(),
              work.to_string().bright_green(),
              short_break.to_string().bright_blue(),
              long_break.to_string().bright_magenta(),
              rust_emoji);
-    
+
     for i in 1..=sessions {
-        println!("\n{} {} === Session {}/{} === {} {}", 
+        println!("\n{} {} === Session {}/{} === {} {}",
                  random_from(&emojis.work),
                  "🔄".bright_yellow(),
-                 i.to_string().bright_yellow(), 
+                 i.to_string().bright_yellow(),
                  sessions.to_string().bright_yellow(),
                  "🔄".bright_yellow(),
                  random_from(&emojis.rust));
-        
+
         // Work period
         run_work_session(work, task_desc, emojis, motivations);
-        
+
         // Determine break type
         if i < sessions {
             run_break(short_break, false, emojis, motivations);
         } else {
-            println!("\n{} All sessions completed! Time for a well-deserved long break! {}", 
+            println!("\n{} All sessions completed! Time for a well-deserved long break! {}",
                      random_from(&emojis.success),
                      rust_emoji);
             run_break(long_break, true, emojis, motivations);
-            
+
             println!("\n{} Great job completing all {} Pomodoros! {}",
                      random_from(&emojis.success),
                      sessions.to_string().bright_yellow(),
@@ -355,38 +355,38 @@ fn run_schedule(sessions: u32, work: u64, short_break: u64, long_break: u64,
 }
 
 /// Run a fancy timer with progress bar and motivational messages
-fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str, 
+fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
                  emoji_set: &[&'static str], motivation_set: &[&'static str]) {
     let total_seconds = minutes * 60;
     let start_time = Local::now();
-    
+
     // Create a progress bar
     let pb = ProgressBar::new(total_seconds);
     pb.set_style(ProgressStyle::default_bar()
         .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})")
         .expect("Failed to set progress bar template")
         .progress_chars("#>-"));
-    
+
     for remaining in (0..total_seconds).rev() {
         // Update progress bar
         pb.set_position(total_seconds - remaining);
-        
+
         // Calculate remaining minutes and seconds
         let mins = remaining / 60;
         let secs = remaining % 60;
-        
+
         // Every minute (or at specific intervals), show a motivational message
         if remaining % 60 == 0 && remaining > 0 && remaining < total_seconds {
-            println!("\n{} {}", 
+            println!("\n{} {}",
                      random_from(emoji_set),
                      random_from(motivation_set).bright_green());
         }
-        
+
         // Calculate elapsed time and estimated end time
         let elapsed = Local::now().signed_duration_since(start_time);
         let elapsed_secs = elapsed.num_seconds() as u64;
         let end_time = Local::now() + chrono::Duration::seconds(remaining as i64);
-        
+
         // Print current status
         print!("\r{} {}: {:02}:{:02} remaining | {:02}:{:02} elapsed | End: {} | {}  ",
                random_from(emoji_set),
@@ -396,15 +396,15 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
                end_time.format("%H:%M:%S").to_string().bright_cyan(),
                description.bright_green());
         io::stdout().flush().unwrap();
-        
+
         // Wait one second
         thread::sleep(Duration::from_secs(1));
     }
-    
+
     pb.finish_with_message(format!("{} completed!", timer_type));
-    println!("\n{} {} completed! {} {}", 
+    println!("\n{} {} completed! {} {}",
              random_from(emoji_set),
-             timer_type.bright_yellow(), 
+             timer_type.bright_yellow(),
              description.bright_green(),
              random_from(&["Great job!", "Well done!", "Excellent!", "Fantastic!", "Amazing!"]));
 }
@@ -419,7 +419,7 @@ fn notify(title: &str, message: &str) {
             Ok(_) => (),
             Err(_) => println!("\n{}: {}", title.bright_yellow(), message.bright_green()), // Fallback if notifications fail
         }
-    
+
     // Play alert sound
     play_alert_sound();
 }
@@ -441,7 +441,7 @@ fn play_alert_sound() {
             // Fallback to just the filename
             Path::new("alert.wav").to_path_buf(),
         ];
-        
+
         // Try each path until we find the sound file
         for sound_path in sound_paths {
             if sound_path.exists() {
@@ -462,36 +462,36 @@ fn play_sound(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     // Get a output stream handle to the default physical sound device
     let (_stream, stream_handle) = OutputStream::try_default()?;
     let sink = Sink::try_new(&stream_handle)?;
-    
+
     // Load the sound file
     let file = BufReader::new(File::open(path)?);
     let source = Decoder::new(file)?;
-    
+
     // Play the sound
     sink.append(source);
-    
+
     // The sound plays in a separate thread. We need to keep the sink alive
     // until the sound finishes playing.
     sink.sleep_until_end();
-    
+
     Ok(())
 }
 
 /// Install the binary to user's PATH
 fn install_to_path() {
     println!("🦀 Let's install pomodoro_rs to your PATH!");
-    
+
     // First build the release version
     println!("Building release version...");
     let build_result = Command::new("cargo")
         .args(["build", "--release"])
         .status();
-    
+
     if let Err(e) = build_result {
         println!("❌ Failed to build: {}", e);
         return;
     }
-    
+
     // Create assets directory in the target
     println!("Setting up assets directory...");
     let target_assets_dir = PathBuf::from("target/release/assets");
@@ -500,18 +500,18 @@ fn install_to_path() {
             println!("⚠️ Warning: Failed to create assets directory: {}", e);
         }
     }
-    
+
     // Copy sound file to target assets directory
     let sound_paths = vec![
         Path::new("src/assets/alert.wav").to_path_buf(),
         Path::new("assets/alert.wav").to_path_buf(),
     ];
-    
+
     for sound_path in sound_paths {
         if sound_path.exists() {
             println!("Found sound file at: {:?}", sound_path);
             let dest_path = target_assets_dir.join("alert.wav");
-            
+
             match std::fs::copy(&sound_path, &dest_path) {
                 Ok(_) => {
                     println!("✅ Successfully copied sound file to: {:?}", dest_path);
@@ -523,7 +523,7 @@ fn install_to_path() {
             }
         }
     }
-    
+
     // Determine target directory
     let home = match home_dir() {
         Some(path) => path,
@@ -532,9 +532,9 @@ fn install_to_path() {
             return;
         }
     };
-    
+
     let target_dir = PathBuf::from(&home).join(".local").join("bin");
-    
+
     // Create target directory if it doesn't exist
     if !target_dir.exists() {
         println!("Creating directory: {:?}", target_dir);
@@ -543,23 +543,23 @@ fn install_to_path() {
             return;
         }
     }
-    
+
     // Copy the binary
     let binary_path = std::env::current_dir()
         .unwrap_or_else(|_| PathBuf::from("."))
         .join("target")
         .join("release")
         .join("pomodoro_rs");
-    
+
     let dest_path = target_dir.join("pomodoro_rs");
-    
+
     println!("Copying from {:?} to {:?}", binary_path, dest_path);
-    
+
     if let Err(e) = std::fs::copy(&binary_path, &dest_path) {
         println!("❌ Failed to copy binary: {}", e);
         return;
     }
-    
+
     // Create assets directory in the destination
     let dest_assets_dir = target_dir.join("assets");
     if !dest_assets_dir.exists() {
@@ -568,7 +568,7 @@ fn install_to_path() {
             println!("⚠️ Warning: Failed to create assets directory: {}", e);
         }
     }
-    
+
     // Copy sound file to destination assets directory
     let source_sound = std::env::current_dir()
         .unwrap_or_else(|_| PathBuf::from("."))
@@ -576,11 +576,11 @@ fn install_to_path() {
         .join("release")
         .join("assets")
         .join("alert.wav");
-        
+
     if source_sound.exists() {
         let dest_sound = dest_assets_dir.join("alert.wav");
         println!("Copying sound file to: {:?}", dest_sound);
-        
+
         if let Err(e) = std::fs::copy(&source_sound, &dest_sound) {
             println!("⚠️ Warning: Failed to copy sound file: {}", e);
         } else {
@@ -589,7 +589,7 @@ fn install_to_path() {
     } else {
         println!("⚠️ Warning: Sound file not found at {:?}", source_sound);
     }
-    
+
     // Make it executable
     #[cfg(unix)]
     {
@@ -602,10 +602,10 @@ fn install_to_path() {
             return;
         }
     }
-    
+
     println!("\n✅ Installation successful! 🦀");
     println!("Binary installed to: {:?}", dest_path);
-    
+
     // Check if the installation directory is already in PATH
     let path_env = match std::env::var("PATH") {
         Ok(val) => val,
@@ -617,35 +617,35 @@ fn install_to_path() {
             return;
         }
     };
-    
+
     let path_entries: Vec<&str> = path_env.split(':').collect();
     let target_dir_str = target_dir.to_string_lossy();
-    
+
     if path_entries.contains(&target_dir_str.as_ref()) {
         println!("\nGood news! {:?} is already in your PATH.", target_dir);
         println!("You can run the command 'pomodoro_rs' from anywhere!");
         return;
     }
-    
+
     // Ask if the user wants to add it to their PATH
     if !Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt("Would you like to add the installation directory to your PATH?")
         .default(true)
         .interact()
         .unwrap_or(false) {
-        
+
         println!("\nYou'll need to manually add {:?} to your PATH.", target_dir);
         println!("Add this line to your shell profile:");
         println!("  export PATH=\"$HOME/.local/bin:$PATH\"");
         return;
     }
-    
+
     // Try to detect which shell is being used
     let shell = std::env::var("SHELL").unwrap_or_else(|_| String::from("unknown"));
     let shell_basename = Path::new(&shell).file_name()
         .map(|name| name.to_string_lossy().to_string())
         .unwrap_or_else(|| String::from("unknown"));
-    
+
     // Determine shell profile file
     let profile_file = match shell_basename.as_str() {
         "bash" => home.join(".bashrc"),
@@ -659,29 +659,29 @@ fn install_to_path() {
             return;
         }
     };
-    
+
     // Ask for confirmation since we're modifying a config file
     println!("\nDetected shell: {}", shell_basename);
     println!("Will add PATH entry to: {:?}", profile_file);
-    
+
     if !Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(&format!("Proceed to modify {:?}?", profile_file))
         .default(true)
         .interact()
         .unwrap_or(false) {
-        
+
         println!("\nNo changes made to your shell profile.");
         println!("You'll need to manually add {:?} to your PATH.", target_dir);
         return;
     }
-    
+
     // Add the directory to PATH in the appropriate file
     let path_line = if shell_basename == "fish" {
         format!("set -x PATH $HOME/.local/bin $PATH\n")
     } else {
         format!("export PATH=\"$HOME/.local/bin:$PATH\"\n")
     };
-    
+
     let result = if profile_file.exists() {
         // Append to existing file
         std::fs::OpenOptions::new()
@@ -696,7 +696,7 @@ fn install_to_path() {
         // Create new file
         std::fs::write(&profile_file, format!("# Added by pomodoro_rs installer\n{}", path_line))
     };
-    
+
     match result {
         Ok(_) => {
             println!("\n✅ Successfully updated your shell profile!");
@@ -731,13 +731,13 @@ fn show_random_tip(emojis: &Emojis) {
         "Track your completed Pomodoros to visualize your productivity trends over time.",
         "The Rust crab says: sometimes your most productive Pomodoro isn't the one where you write the most code!",
     ];
-    
-    println!("\n{} {} {}", 
+
+    println!("\n{} {} {}",
              random_from(&emojis.work),
              "Productivity Tip:".bright_yellow(),
              random_from(&emojis.rust));
-    
-    println!("{} {}\n", 
+
+    println!("{} {}\n",
              "💡",
              random_from(&tips).bright_green());
 }
