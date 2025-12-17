@@ -3,7 +3,7 @@ use std::io::{self, Write, BufReader};
 use std::thread;
 use std::time::Duration;
 use std::process::Command;
-use std::fs::File;
+use std::fs::{File, OpenOptions, create_dir_all};
 use chrono::Local;
 use colored::*;
 use rand::seq::SliceRandom;
@@ -257,6 +257,34 @@ fn print_welcome_message(_emojis: &Emojis) {
     "#.bright_red());
 }
 
+/// Log completed task to daily file
+fn log_completed_task(task_desc: &str) {
+    if let Some(home) = home_dir() {
+        let completed_dir = home.join(".completed_tasks");
+
+        // Create directory if it doesn't exist
+        if let Err(_) = create_dir_all(&completed_dir) {
+            return;
+        }
+
+        // Create filename based on current date (YYYYMMDD.txt)
+        let now = Local::now();
+        let filename = format!("{}.txt", now.format("%Y%m%d"));
+        let file_path = completed_dir.join(filename);
+
+        // Format the log entry: "HH:MM:SS | task_desc"
+        let log_entry = format!("{} | {}\n", now.format("%H:%M:%S"), task_desc);
+
+        // Append to the file
+        if let Ok(mut file) = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(file_path) {
+            let _ = file.write_all(log_entry.as_bytes());
+        }
+    }
+}
+
 /// Run a work session with timer and motivational messages
 fn run_work_session(minutes: u64, task_desc: &str, emojis: &Emojis, motivations: &Motivations) {
     let work_emoji = random_from(&emojis.work);
@@ -269,6 +297,9 @@ fn run_work_session(minutes: u64, task_desc: &str, emojis: &Emojis, motivations:
              // task_desc.bright_cyan());
 
     run_fancy_timer(minutes, "Pomodoro", task_desc, &emojis.work, &motivations.during_work);
+
+    // Log the completed task
+    log_completed_task(task_desc);
 
     println!("\n{} {} {}",
              random_from(&emojis.success),

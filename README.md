@@ -5,9 +5,10 @@ A friendly Pomodoro timer CLI application built with Rust, featuring cute emojis
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Rust Version](https://img.shields.io/badge/rust-stable-blue.svg)
 
-<p align="center">
-  <img src="./assets/pomodoro_rs.png" alt="Pomodoro_rs Screenshot" width="300">
-</p>
+## Forked changes
+- Minimal UI
+- No distracting motivational messages
+- Write completed tasks to a file under `~/.completed_tasks`
 
 ## ✨ Features
 
