@@ -38,6 +38,12 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 ### Building and Installing
 
 ```bash
+# For Ubuntu only.
+sudo apt-get install libasound2-dev
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
+```
+
+```bash
 # Clone the repository
 git clone https://github.com/louire/pomodoro_rs.git
 cd pomodoro_rs
