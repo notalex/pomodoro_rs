@@ -9,6 +9,7 @@ A friendly Pomodoro timer CLI application built with Rust, featuring cute emojis
 - Minimal UI
 - No distracting motivational messages
 - No progress new-line Emojis every minute.
+- Remove audio notification to avoid additional system dependencies.
 - Write completed tasks to a file under `~/.completed_tasks`
 
 ## ✨ Features
@@ -37,12 +38,6 @@ The Pomodoro Technique is a time management method developed by Francesco Cirill
 - **Note**: This project is designed for Rust 2024 edition. If you're using an older version of Rust, you may need to adjust the `Cargo.toml` to use the 2021 edition instead.
 
 ### Building and Installing
-
-```bash
-# For Ubuntu only.
-sudo apt-get install libasound2-dev
-export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
-```
 
 ```bash
 # Clone the repository

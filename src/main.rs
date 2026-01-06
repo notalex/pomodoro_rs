@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
-use std::io::{self, Write, BufReader};
+use std::io::{self, Write};
 use std::thread;
 use std::time::Duration;
 use std::process::Command;
-use std::fs::{File, OpenOptions, create_dir_all};
+use std::fs::{OpenOptions, create_dir_all};
 use chrono::Local;
 use colored::*;
 use rand::seq::SliceRandom;
@@ -12,7 +12,6 @@ use dialoguer::{Confirm, theme::ColorfulTheme};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::path::{Path, PathBuf};
 use dirs::home_dir;
-use rodio::{Decoder, OutputStream, Sink};
 
 /// Available emojis for different timer states
 #[derive(Clone)]
@@ -439,61 +438,9 @@ fn notify(title: &str, message: &str) {
         }
 
     // Play alert sound
-    play_alert_sound();
 }
 
-/// Play the alert sound when a timer completes
-fn play_alert_sound() {
-    thread::spawn(|| {
-        // Try to get the sound file from different possible locations
-        let sound_paths = vec![
-            // Check in src/assets directory
-            Path::new("src/assets/alert.wav").to_path_buf(),
-            // Check in current directory assets
-            Path::new("assets/alert.wav").to_path_buf(),
-            // Check in executable directory
-            std::env::current_exe()
-                .ok()
-                .and_then(|path| path.parent().map(|p| p.join("assets/alert.wav")))
-                .unwrap_or_else(|| Path::new("alert.wav").to_path_buf()),
-            // Fallback to just the filename
-            Path::new("alert.wav").to_path_buf(),
-        ];
 
-        // Try each path until we find the sound file
-        for sound_path in sound_paths {
-            if sound_path.exists() {
-                match play_sound(&sound_path) {
-                    Ok(_) => break,
-                    Err(e) => {
-                        eprintln!("Could not play sound from {:?}: {}", sound_path, e);
-                        continue;
-                    }
-                }
-            }
-        }
-    });
-}
-
-/// Play sound from file path
-fn play_sound(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-    // Get a output stream handle to the default physical sound device
-    let (_stream, stream_handle) = OutputStream::try_default()?;
-    let sink = Sink::try_new(&stream_handle)?;
-
-    // Load the sound file
-    let file = BufReader::new(File::open(path)?);
-    let source = Decoder::new(file)?;
-
-    // Play the sound
-    sink.append(source);
-
-    // The sound plays in a separate thread. We need to keep the sink alive
-    // until the sound finishes playing.
-    sink.sleep_until_end();
-
-    Ok(())
-}
 
 /// Install the binary to user's PATH
 fn install_to_path() {
@@ -516,29 +463,6 @@ fn install_to_path() {
     if !target_assets_dir.exists() {
         if let Err(e) = std::fs::create_dir_all(&target_assets_dir) {
             println!("⚠️ Warning: Failed to create assets directory: {}", e);
-        }
-    }
-
-    // Copy sound file to target assets directory
-    let sound_paths = vec![
-        Path::new("src/assets/alert.wav").to_path_buf(),
-        Path::new("assets/alert.wav").to_path_buf(),
-    ];
-
-    for sound_path in sound_paths {
-        if sound_path.exists() {
-            println!("Found sound file at: {:?}", sound_path);
-            let dest_path = target_assets_dir.join("alert.wav");
-
-            match std::fs::copy(&sound_path, &dest_path) {
-                Ok(_) => {
-                    println!("✅ Successfully copied sound file to: {:?}", dest_path);
-                    break;
-                },
-                Err(e) => {
-                    println!("⚠️ Warning: Failed to copy sound file: {}", e);
-                }
-            }
         }
     }
 
@@ -585,27 +509,6 @@ fn install_to_path() {
         if let Err(e) = std::fs::create_dir_all(&dest_assets_dir) {
             println!("⚠️ Warning: Failed to create assets directory: {}", e);
         }
-    }
-
-    // Copy sound file to destination assets directory
-    let source_sound = std::env::current_dir()
-        .unwrap_or_else(|_| PathBuf::from("."))
-        .join("target")
-        .join("release")
-        .join("assets")
-        .join("alert.wav");
-
-    if source_sound.exists() {
-        let dest_sound = dest_assets_dir.join("alert.wav");
-        println!("Copying sound file to: {:?}", dest_sound);
-
-        if let Err(e) = std::fs::copy(&source_sound, &dest_sound) {
-            println!("⚠️ Warning: Failed to copy sound file: {}", e);
-        } else {
-            println!("✅ Sound file copied successfully");
-        }
-    } else {
-        println!("⚠️ Warning: Sound file not found at {:?}", source_sound);
     }
 
     // Make it executable
