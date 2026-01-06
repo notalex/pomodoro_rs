@@ -396,11 +396,11 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
         let secs = remaining % 60;
 
         // Every minute (or at specific intervals), show a motivational message
-        if remaining % 60 == 0 && remaining > 0 && remaining < total_seconds {
-            println!("\n{} {}",
-                     random_from(emoji_set),
-                     random_from(motivation_set).bright_green());
-        }
+        // if remaining % 60 == 0 && remaining > 0 && remaining < total_seconds {
+            // println!("\n{} {}",
+                     // random_from(emoji_set),
+                     // random_from(motivation_set).bright_green());
+        // }
 
         // Calculate elapsed time and estimated end time
         let elapsed = Local::now().signed_duration_since(start_time);

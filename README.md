@@ -8,6 +8,7 @@ A friendly Pomodoro timer CLI application built with Rust, featuring cute emojis
 ## Forked changes
 - Minimal UI
 - No distracting motivational messages
+- No progress new-line Emojis every minute.
 - Write completed tasks to a file under `~/.completed_tasks`
 
 ## ✨ Features
