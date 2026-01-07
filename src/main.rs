@@ -383,7 +383,7 @@ fn run_schedule(sessions: u32, work: u64, short_break: u64, long_break: u64,
 }
 
 /// Run a fancy timer with progress bar and motivational messages
-fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
+fn run_fancy_timer(minutes: u64, _timer_type: &str, description: &str,
                  emoji_set: &[&'static str], motivation_set: &[&'static str]) {
     let total_seconds = minutes * 60;
     let start_time = Local::now();
@@ -407,9 +407,8 @@ fn run_fancy_timer(minutes: u64, timer_type: &str, description: &str,
         let end_time = Local::now() + chrono::Duration::seconds(remaining as i64);
 
         // Print current status
-        print!("\r{}: {} | {} | {}  ",
-               timer_type.bright_yellow(),
-               end_time.format("%H:%M:%S").to_string().bright_cyan(),
+        print!("\r{} | {} | {}  ",
+               end_time.format("%H:%M").to_string().bright_cyan(),
                format!("{:02}:{:02}", mins, secs).bold().yellow(),
                description.green());
         io::stdout().flush().unwrap();
